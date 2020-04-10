@@ -2,33 +2,90 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const Blockchain = require('./blockchain');
+const user = require('./models/userSchema');
 //const uuid = require('uuid/v1');
-// const mongodb = require('mongodb');
+const session = require('express-session');
+const cookieParser=require('cookieparser');
 const mongoose =require('mongoose');
 const port = process.argv[2];
-
 //const rp = require('request-promise');
 //const nodeAddress = uuid().split('-').join('');
-// const url = "mongodb+srv://anto:anto@cluster0-y2p9h.mongodb.net/test?authSource=admin&retryWrites=true&w=majority";
 const filecoin = new Blockchain();
 const uri = "mongodb+srv://anto:anto@cluster0-y2p9h.mongodb.net/test?retryWrites=true&w=majority";
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/assets',express.static('assets'));
 app.set('view engine','ejs');
+//app.use(cookieParser());
+app.use(session({secret: "Secret key it is."}));
+// app.use(session({
+//   secret: 'my-secret',
+//   resave: false,
+//   saveUninitialized: true,
+//   store: new MongoStore({ mongooseConnection: db })
+// }));
 
+var sess;
+//User Account creation page
+app.get('/signup',function(req,res){
 
-
-
-app.get('client.ejs',function(req,res){
-
-    res.render('client.ejs');
+    res.render('signup.ejs');
      
 });
 
-app.get('node.ejs',function(req,res){
+app.post('/userSignup',function(req,res){
+
+    sess=req.session;
+    const User = new user({
+        _id: req.body.email,
+        firstName: req.body.fname,
+        lastName: req.body.lname,
+        password: req.body.password
+      });
+      User.save()
+        .then(() => {
+          // console.log(req.body.title);
+          sess._id;
+          sess.firstName;
+          console.log('in here');
+          res.send('User added successfully');
+        })
+        .catch(err => {
+          console.log('email id exists');
+          res.status(400).send(err);
+        });
+     
+});
+
+app.get('/login',function(req,res){
+
+  res.render('login.ejs');
+   
+});
+
+app.post('/userLogin',function(req,res){
+    
+    sess=req.session;
+    user.findOne(req.body) //filters the posts by Id
+    .then(result => {
+      if(result !== null)
+      {  sess._id;
+        sess.firstName;
+        res.send(result);
+      }
+      else
+      {
+        res.redirect('login');
+      } 
+    }).catch(err => {
+      res.status(400).send(err);
+    })
+    
+  
+});
+
+app.get('/node',function(req,res){
     res.render('node.ejs');
 
 });
@@ -60,6 +117,17 @@ app.post('/register-node', function(req, res) {
 	const notCurrentNode = filecoin.currentNodeUrl !== newNodeUrl;
 	if (nodeNotAlreadyPresent && notCurrentNode) filecoin.networkNodes.push(newNodeUrl);
 	res.json({ note: 'New node registered successfully.',url: newNodeUrl });
+});
+
+
+app.get('/logout',(req,res) => {
+  req.session.destroy((err) => {
+      if(err) {
+          return console.log(err);
+      }
+      res.redirect('/');
+  });
+
 });
 
 
