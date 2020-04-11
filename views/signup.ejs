@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Account Creation</title>
+      <link rel="stylesheet" type="text/css" href="/assets/styles.css">
+  </head>    
+  <body>
+    <div class="box">
+      <h2>User Signup</h2>
+      <form action='/userSignup' method='POST'>
+        <div class="inputbox">
+          <input type="email" name="_id" required="">
+          <label>Email</label>
+        </div>
+        <div class="inputbox">
+            <input type="text" name="fname" required="">
+            <label>First name</label>
+          </div>
+          <div class="inputbox">
+            <input type="text" name="lname" required="">
+            <label>Last name</label>
+          </div>
+        <div class="inputbox">
+          <input type="password" name="password" required="">
+          <label>Password</label>
+        </div>
+      <center><input type="submit" name="" value="Create Account"></center>  
+    </form>
+        <br><br>
+        <form action='/login'>
+        <center><input type='submit' formaction="/login" value='LOGIN'></center>
+        </form>
+
+    </div>
+
+  </body>
+
+</html>
