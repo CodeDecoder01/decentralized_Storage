@@ -12,19 +12,14 @@ const port = process.argv[2];
 //const nodeAddress = uuid().split('-').join('');
 const filecoin = new Blockchain();
 const uri = "mongodb+srv://anto:anto@cluster0-y2p9h.mongodb.net/test?retryWrites=true&w=majority";
-
+const fs=require('fs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/assets',express.static('assets'));
 app.set('view engine','ejs');
 //app.use(cookieParser());
 app.use(session({secret: "Secret key it is."}));
-// app.use(session({
-//   secret: 'my-secret',
-//   resave: false,
-//   saveUninitialized: true,
-//   store: new MongoStore({ mongooseConnection: db })
-// }));
+
 
 var sess;
 //User Account creation page
@@ -85,10 +80,7 @@ app.post('/userLogin',function(req,res){
   
 });
 
-app.get('/node',function(req,res){
-    res.render('node.ejs');
 
-});
 
 app.get('/',(req,res)=>{
 
@@ -97,26 +89,39 @@ app.get('/',(req,res)=>{
 });
 
 app.post('/addFile',(req,res)=>{
-    var filename=req.body.filename;
+    var filename=req.body.file;
     var size=10;
     var resp=filecoin.createNewFileUpload(filename,size,'anto','prince');
     filecoin.addNewFileToPendingFiles(resp);
-    res.json(filecoin);
+    fs.readFile(__dirname+filename,function(err,data){
+      fs
+      res.send(data);
+
+    });   // res.json(req.body.file);
+   
+
 });
 
 app.get('/node',(req,res)=>{
 
+  
     res.render('Noderegister.ejs');
 
 });
 
 // register a node with the network
 app.post('/register-node', function(req, res) {
-	const newNodeUrl = req.body.newNodeUrl;
+  require('dns').lookup(require('os').hostname(), function (err, add, fam) {
+    console.log('addr: '+add);
+    const newNodeUrl=add;
+  
+	//const newNodeUrl = req.body.newNodeUrl;
 	const nodeNotAlreadyPresent = filecoin.networkNodes.indexOf(newNodeUrl) == -1;
 	const notCurrentNode = filecoin.currentNodeUrl !== newNodeUrl;
-	if (nodeNotAlreadyPresent && notCurrentNode) filecoin.networkNodes.push(newNodeUrl);
-	res.json({ note: 'New node registered successfully.',url: newNodeUrl });
+  if (nodeNotAlreadyPresent && notCurrentNode) filecoin.networkNodes.push(newNodeUrl);
+
+  res.json({ note: 'New node registered successfully.',url: newNodeUrl });
+});
 });
 
 
