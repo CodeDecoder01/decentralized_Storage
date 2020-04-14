@@ -85,7 +85,7 @@ Blockchain.prototype.chainIsValid = function(blockchain){
         const currentBlock=Blockchain[i];
         const prevBlock = blockchain[i-1];
         const blockHash = this.hashBlock(prevBlock[hash],{ fileUpload: currentBlock['fileUpload'], index: currentBlock['index'] }, currentBlock['nonce']);
-        if (blockHash.substring(0, 4) !== '0000') validChain = false;
+        if (blockHash.substring(0, 3) !== '000') validChain = false;
 		if (currentBlock['previousBlockHash'] !== prevBlock['hash']) validChain = false;
 	};
 
